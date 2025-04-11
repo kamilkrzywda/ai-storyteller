@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { OllamaFormat } from "../types/ollama";
 
 export function useAgent(systemPrompt: string = "") {
   const [models, setModels] = useState<string[]>([]);
@@ -36,10 +37,6 @@ export function useAgent(systemPrompt: string = "") {
     setResponse("");
 
     try {
-      const fullPrompt = systemPrompt ? `${systemPrompt}
-
-User: ${userPrompt}` : userPrompt;
-
       const response = await fetch('/api/ollama', {
         method: 'POST',
         headers: {
@@ -47,7 +44,8 @@ User: ${userPrompt}` : userPrompt;
         },
         body: JSON.stringify({
           model: selectedModel,
-          prompt: fullPrompt,
+          systemPrompt,
+          userPrompt,
         }),
       });
 
@@ -65,6 +63,50 @@ User: ${userPrompt}` : userPrompt;
     }
   }, [selectedModel, userPrompt, systemPrompt]);
 
+  const generateStructuredResponse = useCallback(async (
+    format: OllamaFormat,
+    prompt: string = userPrompt,
+    systemPromptOverride: string = systemPrompt
+  ): Promise<string | null> => {
+    if (!selectedModel || !prompt) {
+      setError("Please select a model and enter a prompt.");
+      return null;
+    }
+
+    setIsLoading(true);
+    setError(null);
+    setResponse("");
+
+    try {
+      const response = await fetch('/api/ollama', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: selectedModel,
+          systemPrompt: systemPromptOverride,
+          userPrompt: prompt,
+          format,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate structured response');
+      }
+
+      const data = await response.json();
+      setResponse(data.response);
+      return data.response;
+    } catch (err) {
+      console.error("Failed to generate structured response:", err);
+      setError("Failed to generate structured response from Ollama.");
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [selectedModel, userPrompt, systemPrompt]);
+
   return {
     models,
     selectedModel,
@@ -75,5 +117,6 @@ User: ${userPrompt}` : userPrompt;
     isLoading,
     error,
     generateResponse,
+    generateStructuredResponse,
   };
 } 

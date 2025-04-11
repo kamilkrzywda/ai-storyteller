@@ -23,6 +23,21 @@ export class OllamaService {
     return response.response;
   }
 
+  async generateStructuredResponse(
+    model: string,
+    userPrompt: string,
+    format: string,
+    systemPrompt?: string
+  ): Promise<string> {
+    const response = await this.ollama.generate({
+      model,
+      prompt: userPrompt,
+      system: systemPrompt,
+      format: format,
+    });
+    return response.response;
+  }
+
   async streamResponse(
     model: string,
     prompt: string

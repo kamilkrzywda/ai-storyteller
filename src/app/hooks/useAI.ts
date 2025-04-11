@@ -40,11 +40,6 @@ export function useAI() {
     setResponse("");
 
     try {
-      // Combine system prompt and user prompt if system prompt exists
-      const fullPrompt = systemPrompt ? `${systemPrompt}
-
-User: ${userPrompt}` : userPrompt;
-
       const response = await fetch('/api/ollama', {
         method: 'POST',
         headers: {
@@ -52,7 +47,8 @@ User: ${userPrompt}` : userPrompt;
         },
         body: JSON.stringify({
           model: selectedModel,
-          prompt: fullPrompt,
+          systemPrompt,
+          userPrompt,
         }),
       });
 
