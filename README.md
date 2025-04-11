@@ -53,13 +53,66 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 A `Dockerfile` is provided to build and run the application in a container:
 
+### Building Locally
+
 1.  **Build the image:**
     ```bash
     docker build -t storyteller-app .
     ```
-2.  **Run the container:**
+2.  **Run the container (remember to set `OLLAMA_HOST` and optionally `OLLAMA_MODEL`):**
     ```bash
-    docker run -d -p 3000:3000 --name storyteller-instance storyteller-app
+    docker run -d -p 3000:3000 \
+      -e OLLAMA_HOST=<your_ollama_url> \
+      -e OLLAMA_MODEL=<model_name> `# Optional, defaults to cogito:8b` \
+      --name storyteller-instance storyteller-app
     ```
 
-The application will be accessible at [http://localhost:3000](http://localhost:3000).
+### Using the Pre-built Image
+
+Alternatively, you can use the pre-built image available on GitHub Container Registry:
+
+Pull the image:
+```bash
+docker pull ghcr.io/kamilkrzywda/ai-storyteller:latest
+```
+
+Run the container (remember to set `OLLAMA_HOST` and optionally `OLLAMA_MODEL`):
+```bash
+docker run -d -p 3000:3000 \
+  -e OLLAMA_HOST=<your_ollama_url> \
+  -e OLLAMA_MODEL=<model_name> `# Optional, defaults to cogito:8b` \
+  --name storyteller-instance ghcr.io/kamilkrzywda/ai-storyteller:latest
+```
+
+### Important: Environment Variables
+
+#### `OLLAMA_HOST` (Required)
+
+The application needs to connect to an Ollama instance to function. You **must** set the `OLLAMA_HOST` environment variable when running the container. This variable should contain the URL of your Ollama server.
+
+**Example:** `http://localhost:11434`
+
+#### `OLLAMA_MODEL` (Optional)
+
+This variable specifies which Ollama model the AI agent should use.
+
+*   **Default:** `cogito:8b`
+*   You can override this by setting the environment variable when running the container.
+
+**Example:** To use `llama3:latest` instead of the default:
+
+```bash
+# Using locally built image
+docker run -d -p 3000:3000 \
+  -e OLLAMA_HOST=http://localhost:11434 \
+  -e OLLAMA_MODEL=llama3:latest \
+  --name storyteller-instance storyteller-app
+
+# Using pre-built image
+docker run -d -p 3000:3000 \
+  -e OLLAMA_HOST=http://localhost:11434 \
+  -e OLLAMA_MODEL=llama3:latest \
+  --name storyteller-instance ghcr.io/kamilkrzywda/ai-storyteller:latest
+```
+
+The application will be accessible at [http://localhost:3000](http://localhost:3000) (or your server's IP address if not running locally).

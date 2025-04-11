@@ -7,8 +7,8 @@ const ollamaService = new OllamaService();
  * Interface for the POST request body parameters
  */
 interface OllamaRequest {
-  /** The model name to use for generation (e.g., "llama2", "mistral") */
-  model: string;
+  /** The model name to use for generation (e.g., "llama2", "mistral"). If omitted, defaults to the OLLAMA_MODEL environment variable or 'cogito:8b'. */
+  model?: string;
   /** The system prompt that sets the context or behavior for the model */
   systemPrompt?: string;
   /** The user's input prompt for the model */
@@ -31,8 +31,11 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const { model, systemPrompt, userPrompt, format } = await request.json() as OllamaRequest;
+    const { model: reqModel, systemPrompt, userPrompt, format } = await request.json() as OllamaRequest;
     
+    // Determine the model to use: Request body > Environment Variable > Default
+    const model = reqModel || process.env.OLLAMA_MODEL || 'cogito:8b';
+
     if (format) {
       // Handle structured output request
       const response = await ollamaService.generateStructuredResponse(model, userPrompt, format, systemPrompt);

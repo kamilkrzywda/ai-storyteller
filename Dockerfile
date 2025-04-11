@@ -23,6 +23,8 @@ WORKDIR /app
 # Set environment variables
 ENV NODE_ENV=production
 ENV OLLAMA_HOST=http://192.168.1.100:11434
+# Default model, can be overridden at runtime
+ENV OLLAMA_MODEL=cogito:8b
 
 # Copy necessary files from the builder stage
 # Copy node_modules, package.json, bun.lockb for runtime dependencies
