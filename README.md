@@ -1,38 +1,26 @@
 # AI Storyteller
 
-This is an interactive storytelling application powered by an AI agent. The AI guides a narrative collaboratively with you through conversation.
+This is an interactive storytelling application powered by an AI agent. The AI guides a narrative collaboratively with you through conversation, automatically capturing key context.
 
 ## How it Works
 
 The core of the application is an AI Storyteller Agent designed to:
 
-1.  **Engage in Conversation:** The AI responds directly to your messages, interprets them in the context of the ongoing story, asks clarifying questions, and suggests potential plot points or character actions for the next step in the narrative.
-2.  **Maintain Consistency:** It keeps track of the story details and context established so far.
-3.  **Generate Structured Output:** The AI provides its responses in a JSON format with three fields:
+1.  **Engage in Conversation:** The AI responds directly to your messages (`response` field), interprets them in the context of the ongoing interaction, asks clarifying questions, and suggests potential developments or actions.
+2.  **Automatically Capture Context:** The AI constantly analyzes your messages and extracts **all** mentioned factual details, descriptions, character notes, locations, decisions, intentions, etc., adding them to a running context list (`context` field).
+3.  **Generate Structured Output:** The AI provides its responses in a JSON format with two main fields:
     *   `response`: Contains the AI's direct conversational reply, including questions and suggestions for you. This field is *always* present.
-    *   `context`: Stores key background information, character details, locations, or rules relevant to the story.
-    *   `story`: Contains the actual narrative prose (dialogue, action, description).
+    *   `context`: Contains **new** context items identified in your latest message, provided as a newline-separated string. The application splits this string and adds each line as a separate item to the context list displayed in the UI.
 
-## Important Interaction Rules: Context and Story Fields
+## Context Management
 
-The AI manages the `context` and `story` fields based on very specific rules:
+The Context panel displays a list of all information the agent has captured from your messages.
 
-*   **Explicit Instructions Required:** The AI will **ONLY** add information to the `context` or `story` fields if you **explicitly** ask it to.
-    *   **For Context:** Use phrases like:
-        *   "Add [information] to the context."
-        *   "Update the context with [details]."
-        *   "Remember that [fact] is true."
-        *   "Make a note of [item] in the context."
-    *   **For Story:** Use phrases like:
-        *   "Continue the story."
-        *   "Write the next part."
-        *   "Describe what happens next."
-        *   "Add this scene to the story."
-*   **General Discussion is Not Enough:** Simply talking about events, characters, or details in the conversation **does not** automatically update the `context` or `story`. You must follow up with an explicit command if you want the information recorded.
-*   **Appending Only:** When you instruct the AI to update `context` or `story`, it will *append* the new information. It will not replace or modify existing content in those fields unless specifically instructed in a way that implies modification (which is generally discouraged by the base prompt).
-*   **Independence:** Updating the `context` does not automatically update the `story`, and vice-versa, unless you explicitly ask for both.
-
-By default, the AI will only use the `response` field for conversation. Stick to the explicit commands when you want to formally add to the story's background (context) or narrative (story).
+*   **Automatic Updates:** The agent is strictly instructed to capture **ALL new information** provided in your latest message. Every detail, fact, decision, or description you state WILL be extracted and added as one or more new items to the context list on the agent's next turn.
+*   **Append-Only (Agent Side):** The agent only provides *new* information in the `context` field. It checks the existing context (provided in its input) and avoids repeating items.
+*   **Explicit Keywords:** While not strictly required anymore, using phrases like "remember that...", "save that...", "add that...", or "make a note of..." will strongly signal to the agent that the following information should definitely be added to the context.
+*   **User Deletion:** You can manually remove any item from the context list by clicking the trash icon next to it. This action is recorded in the undo history.
+*   **Import/Export:** You can export the current context list to a JSON file and import a previously saved list, replacing the current one.
 
 ## Getting Started (Development)
 
