@@ -330,7 +330,7 @@ Please respond to the last User message, considering the chat history and the cu
         {/* Left side (or main area on smaller screens) - Chat Interface */}
         <div className="w-full md:w-2/3 flex flex-col space-y-4">
           {/* Model Selection */}
-          <div className="flex-shrink-0">
+          <div className="flex-shrink-0 hidden">
             <label className="block text-sm font-medium mb-1 text-gray-200">Select Model</label>
             <select
               value={selectedModel}
